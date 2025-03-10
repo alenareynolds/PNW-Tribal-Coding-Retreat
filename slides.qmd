@@ -1,0 +1,1552 @@
+---
+title: "Spatial Data Workshop"
+subtitle: "2023 EPA R User Group Workshop"
+date: October 18, 2023
+format:
+  revealjs:
+    author: 
+      - "Marc Weber"
+      - "Michael Dumelle"
+    institute: 
+      - "EPA (USA)"
+      - "EPA (USA)"
+    footer: "Spatial Data Workshop"
+    slide-number: true
+    preview-links: true
+    transition: fade
+    theme: [default, slides.scss]
+    smaller: false
+    auto-stretch: true
+    code-link: true
+    incremental: false
+execute: 
+  echo: true
+embed-resources: true
+bibliography: references.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# set width of code output
+options(width = 80)
+
+# load background packages
+library(countdown)
+```
+
+## Welcome!
+
+1. Please visit [https://usepa.github.io/spatialdata.epaR2023/](https://usepa.github.io/spatialdata.epaR2023/) to view the workshop's accompanying workbook
+
+2. Install and load R packages by visiting "Setup" in the workbook's "Welcome" section 
+
+3. (Optional) Download the workshop slides (instructions in the workbook's "Welcome" section)
+
+4. (Optional) Fill out the poll so we can better understand attendee's level of experience handling spatial data
+
+5. Follow along and have fun!
+
+## Who Are We?
+
+Marc Weber is a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). His work supports various aspects of the USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, as he helped develop and maintains the StreamCat and LakeCat datasets.  His work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.
+
+## Who Are We?
+
+Michael Dumelle is a statistician for the United States Environmental Protection Agency (USEPA). He works primarily on facilitating the survey design and analysis of USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States. His primary research interests are in spatial statistics, survey design, environmental and ecological applications, and software development.
+
+## Disclaimer
+
+The views expressed in this workshop are those of the authors and do not necessarily represent the views or policies of the U.S. Environmental Protection Agency or the U.S. National Oceanic and Atmospheric Administration. Any mention of trade names, products, or services does not imply an endorsement by the U.S. government, the U.S. Environmental Protection Agency, or the U.S. National Oceanic and Atmospheric Administration. The U.S. Environmental Protection Agency and the U.S. National Oceanic and Atmospheric Administration do not endorse any commercial products, services, or enterprises.
+
+## What Will We Cover?
+
+* Foundations of spatial data
+* Visualizing spatial data
+* Geoprocessing spatial data
+* Advanced applications
+* Focus on the **R** computing language
+
+## Today's Agenda
+
+- 1:00pm - 1:35pm EDT: Introduction and Spatial Data Structures in R
+- 1:35pm - 2:05pm EDT: Vector Data Model
+- 2:05pm - 2:10pm EDT: Break
+- 2:10pm - 2:30pm EDT: Raster Data Model
+- 2:30pm - 3:15pm EDT: Coordinate Reference Systems and I / O
+- 3:15pm - 3:25pm EDT: Break
+
+## Today's Agenda
+
+- 3:25pm - 3:45pm EDT: Spatial Data Visualization
+- 3:45pm - 4:15pm EDT: Geoprocecessing
+- 4:15pm - 4:20pm EDT: Break
+- 4:20pm - 5:00pm EDT: Advanced Applications
+
+# Foundations
+
+## Goals
+
+::: goals
+1. Understand fundamental spatial data structures and libraries in **R**.
+2. Become familiar with coordinate reference systems.
+3. Geographic I/O (input/output).
+:::
+
+## Data Structures
+
+* Review data structures section in workbook
+* Cover vectors, matrices, arrays, lists, data frames, etc.
+* Cover data frame manipulation using [tidyverse](https://www.tidyverse.org/) functions and the pipe operator (`%>%` or `|>`)
+
+## Why R for Spatial Data Analysis?
+
+* Lightweight, open-source, and cross-platform
+* Provides tools for automation and reproducibility
+* Seamlessly integrates spatial data analysis and statistical analysis in one environment
+* Handles vector and raster data
+
+## R Drawbacks for GIS Work
+
+* R is less interactive than desktop applications like ArcGIS or QGIS
+* Handling coordinate reference systems is more challenging
+* In-memory analysis can be prohibitive for large data
+* Steep learning curve
+
+## A Motivating Example
+
+* Simple, expressive code
+
+```{r}
+#| warning: false
+library(tmap)
+library(tmaptools)
+library(dplyr)
+
+# find my town!
+my_town <- tmaptools::geocode_OSM("Corvallis OR USA", as.sf = TRUE)
+glimpse(my_town)
+```
+
+## Your Turn
+
+::: task
+1. What does `::` do?
+2. What does `geocode_OSM()` do?
+3. Explain how the code runs together using the  `|>` chaining operator
+4. What is `glimpse()`?  How is it useful compared to `head()`?
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 5)
+```
+
+## Our Turn
+
+::: task2
+1. `::` lets you clarify from which package a function is called (e.g., `tmaptools::geocodeOSM()`)
+2. `geocode_OSM()` looks up a named feature in OpenStreetMap and returns the coordinates
+3. Do this `|>` then that
+4. `glimpse()` glimpses at a data frame
+:::
+
+## A Choropleth Map
+
+* A choropleth map is a map that connects statistical summaries to geographic characteristics
+* The `tigris` package can retrieve census, county, and state boundaries as vector `sf` data
+
+```{r}
+#| label: fig-tmapexample
+#| fig-cap: "Distribution of Oregon counties."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+library(tigris)
+library(sf)
+counties <- counties("Oregon", cb = TRUE)
+counties$area <- as.numeric(st_area(counties))
+glimpse(counties)
+
+tm_shape(counties) +
+  tm_polygons("area", style="quantile", title="Area of Oregon Counties")
+```
+
+
+## Your Turn
+
+::: task
+Create and explore an interactive map of `my_town` by running
+```{r}
+#| eval: false
+library(mapview)
+mapviewOptions(fgb=FALSE)
+mapview(my_town, col="red", col.regions = "red") +
+  mapview(counties, alpha.regions = .1)
+```
+
+:::
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(mapview)
+countdown(minutes = 4)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-mytowncounties
+#| fig-cap: "Corvallis among distribution of Oregon counties."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/mytown_counties.jpg")
+```
+
+## Spatial Data Structures
+
+* Spatial data structures are primarily organized through:
+
+1. GDAL [link here](https://gdal.org/): For raster and feature abstraction and processing
+2. PROJ [link here](https://proj.org/): For coordinate transformations and projections
+3. GEOS [link here](https://libgeos.org/): For spatial operations (e.g., calculating buffers or centroids) on data with a projected coordinate reference system (CRS)
+
+* We explore these core libraries throughout the workshop
+
+## Types of Spatial Data
+
+* Vector data are comprised of points, lines, and polygons that represent discrete spatial entities (e.g., river, wtaershed, stream gauge)
+* Raster data divide space into small rectangles (pixels) that represent spatially continuous phenomena like elevation or precipitation
+
+## Types of Spatial Data
+
+```{r}
+#| label: fig-vectorraster
+#| fig-cap: "Vector and raster data."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/09-vec-raster.jpg")
+```
+
+
+## Vector Data Model
+
+* Vector data are described using simple features
+* Simple features is a standard way to specify how two-dimensional geometries are represented, stored in and retrieved from databases, and which geometric operations can be performed
+* Provides framework for extending spatial `POINTS` to `LINES` and `POLYGONS`
+
+## Types of Spatial Data
+
+```{r}
+#| label: fig-sfmodel
+#| fig-cap: "The simple features data model."
+#| fig-align: center
+#| echo: false
+#| out-width: "100%"
+
+knitr::include_graphics("img/09-sf-model.png")
+```
+
+## The `sf` Package
+
+* We use the `sf` package to work with spatial vector data in **R**
+* Learn more about `sf` at their website [r-spatial.github.io/sf](r-spatial.github.io/sf) and/or by running
+```{r}
+#| eval: false
+
+vignette(package = "sf") # see which vignettes are available
+vignette("sf1")          # open the introduction vignette
+```
+
+## `sf` Primitives
+
+* There are three basic `geometric` primitives with corresponding `sf` functions to create them:
+
+1. `POINT`: created with `st_points()`
+2. `LINESTRING`: created with `st_linestring()`
+3. `POLYGON`: created with `st_polygon()`
+
+* More complex simple feature geometries are built up using `st_multipoint()`, `st_multilinestring()`, `st_multipolygon()`, and `st_geometrycollection()`
+* Building blocks for more complicated/large data structures
+
+## `POINT`s
+
+* Points in `sf` are composed of coordinate pairs and a coordinate reference system
+* Points have no length or area
+```{r}
+# create sf object as point
+pt1 <- st_point(c(1,3))
+pt2 <- st_point(c(2,1))
+pt3 <- st_point(c(3,2))
+sf_point <- st_sfc(pt1, pt2, pt3)
+```
+
+```{r}
+#| label: fig-sfpoint
+#| fig-cap: "sf `POINT`"
+#| output-location: slide
+
+library(ggplot2)
+ggplot(sf_point) + 
+  geom_sf(color = "red") +
+  labs(x = "X", y = "Y")
+```
+
+## `LINESTRING`s
+
+* An ordered sequence of two or more `POINT`s
+* Points in a line are called verticies (or nodes)
+* Linestrings have length but no area
+
+```{r}
+# create sf object as linestring
+line1 <- sf::st_linestring(rbind(pt1, pt2))
+line2 <- sf::st_linestring(rbind(pt2, pt3))
+sf_linestring <- st_sfc(line1, line2)
+```
+
+```{r}
+#| label: fig-sflinestring
+#| fig-cap: "sf `LINESTRING`"
+#| output-location: slide
+
+ggplot(sf_linestring) + 
+  geom_sf() +
+  labs(x = "X", y = "Y")
+```
+
+## `POLYGON`s
+
+* Four or more points with the same starting and ending point
+* Has length and area
+
+
+```{r}
+pt4 <- pt1
+poly1 <- st_polygon(list(rbind(pt1, pt2, pt3, pt4)))
+sf_polygon <- st_sfc(poly1)
+
+# dimension
+sf::st_dimension(sf_polygon)
+```
+
+```{r}
+#| label: fig-sfpolygon
+#| fig-cap: "sf `POLYGON`"
+#| output-location: slide
+
+ggplot(sf_polygon) + 
+  geom_sf(fill = "grey")
+```
+
+## Putting Them All Together
+
+```{r}
+#| label: fig-sfallshape
+#| fig-cap: "sf `POINT`, `LINESTRING`, and `POLYGON` overlain"
+#| output-location: slide
+
+ggplot() +
+  geom_sf(data = sf_point, color = "red") +
+  geom_sf(data = sf_linestring) +
+  geom_sf(data = sf_polygon, fill = "grey")
+```
+
+## Spatial Data Frames
+
+* `sf` objects combine `data.frame` attributes with `POINT`, `LINESTRING`, and `POLYGON` building blocks (these are the `geometry`)
+* Also characterize dimensionality, bounding box, coordinate reference system, attribute headers
+* Read from shapefiles using `st_read()` or `read_sf()`
+
+```{r}
+#| warning: false
+#| message: false
+#| output-location: slide
+
+library(spData)
+data("us_states")
+print(us_states)
+```
+
+## Spatial Data Frames
+
+```{r}
+#| label: fig-sfstructure
+#| fig-cap: "The simple features data structure."
+#| fig-align: center
+#| echo: false
+#| out-width: "100%"
+
+knitr::include_graphics("img/sf_structure.png")
+```
+
+## Your Turn
+
+::: task
+So far we have explored plotting using `ggplot()`, but you can also use `sf`'s base plotting via `plot()`. Read more about plotting in `sf` by running `?plot.sf` and then make an appropriate plot of the `us_states` data.
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 5)
+```
+
+## Our Turn
+
+::: task2
+Running `plot()` in `sf` plots all variables; common to subset
+:::
+
+```{r}
+#| label: fig-usarea
+#| fig-cap: "Area by state in the US."
+#| output-location: slide
+
+plot(us_states["AREA"])
+```
+
+
+## Raster Data Model
+
+* Raster data can be continuous or categorical
+* Can be image based; have a temporal component
+
+## Raster Data Model
+
+```{r}
+#| label: fig-rastermodel
+#| fig-cap: "The raster data model."
+#| fig-align: center
+#| echo: false
+#| out-width: "100%"
+
+knitr::include_graphics("img/raster_data_model.jpg")
+```
+
+## The `terra` Package
+
+* We use the `terra` package to work with spatial raster data in **R**
+* `terra` is the modern replacement to `raster`
+* Learn more about `terra` at their website [https://rspatial.org/](https://rspatial.org/)
+* `stars` for spatio-temporal rasters
+
+## Creating a Raster Object
+
+* Create an empty `SpatRaster` object; define rows, columns, bounding box
+```{r}
+library(terra)
+myrast <- rast(ncol = 10, nrow = 10, xmax = -116, xmin = -126, ymin = 42, ymax = 46)
+str(myrast)
+print(myrast)
+```
+
+## Your Turn
+
+::: task
+We just printed `myrast` and saw several components: `class`, `dimensions`, `resolution`, `extent`, and `coord. ref`. Explicitly return and inspect each of these pieces using `class()`, `ncell()`, `res()`, `ext()`, and `crs()`. Bonus: Return the number of raster cells using `ncell()`.
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 5)
+```
+
+## Our Turn
+
+```{r}
+class(myrast)
+ncell(myrast)
+res(myrast)
+ext(myrast)
+crs(myrast)
+ncell(myrast)
+```
+
+## Manipulating Raster Objects
+
+* Let's add values to the raster object
+```{r}
+values(myrast) <- 1:ncell(myrast)
+```
+
+```{r}
+#| label: fig-rastplot
+#| fig-cap: "Raster plot."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+plot(myrast)
+```
+
+## Reading a Raster Object
+
+* Lets read in a raster object from the `spDataLarge` package that contains elevation data from Zion National Park
+
+```{r}
+raster_filepath <- system.file("raster/srtm.tif", package = "spDataLarge")
+my_rast <- rast(raster_filepath)
+```
+
+```{r}
+#| label: fig-rastplotzion
+#| fig-cap: "Raster plot of elevation from Zion National Park."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+plot(my_rast)
+```
+
+## Your Turn
+
+::: task
+The `spatRaster` object in `terra` can hold multiple layers. Read in the four bands of Landsat 8 data from Zion National Park by running
+```{r}
+landsat <- system.file("raster/landsat.tif", package = "spDataLarge")
+landsat <- rast(landsat)
+```
+
+Then plot this raster using `plot()`.
+
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-rastplotzion8
+#| fig-cap: "Raster plot of Landsat 8 data from Zion National Park."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+plot(landsat)
+```
+
+
+## Spatio-Temporal Raster Objects
+
+* The `stars` package has tools for spatio-temporal raster data
+* `stars` integrates with `sf` (recall that `terra` does not)
+* Learn more at their website [https://r-spatial.github.io/stars/](https://r-spatial.github.io/stars/)
+
+## Coordinate Reference Systems 
+
+A coordinate reference system (CRS) is made up of several components
+
+1. Coordinate system: The x,y grid that defines where your data lies in space
+2. Horizontal and vertical units: The units that describe the coordinate system
+3. Datum: The modeled version of the earth's shape
+4. Projection details (if applicable): The mathematical equation used to flatten objects from round surface (earth) to flat surface (paper or screen)
+
+## The Ellipsoid and Geoid
+
+* The earth can be thought of as an ellipsoid defined by a semi-major (equatorial) axis and a semi-minor (polar) axis
+* More precisely, it is a geoid that is not perfectly smooth
+* A datum is built on top of the ellipsoid and incorporates local features
+* The most appropriate datum depends on the location of interest (in the US we typically use NAD83)
+
+## The Ellipsoid and Geoid
+
+```{r}
+#| label: fig-ellipse
+#| fig-cap: "The ellipsoid and geoid."
+#| fig-align: center
+#| echo: false
+#| out-width: "75%"
+
+knitr::include_graphics("img/Ellipsoid.png")
+```
+
+## Your Turn
+
+::: task
+There are several websites that are helpful for learning more about specific coordinate reference systems
+
+1. Spatial Reference: [https://spatialreference.org/](https://spatialreference.org/)
+2. Projection Wizard: [https://projectionwizard.org/](https://projectionwizard.org/)
+3. EPSG: [https://epsg.io/](https://epsg.io/)
+
+Spend a few minutes learning about one or more of these references by visiting their websites.
+
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 4)
+```
+
+## Specifying a CRS
+
+There are many ways to specify a CRS:
+
+1. Proj4
+    * `+proj = longlat + ellps=WGS84 ...`
+2. OGC WKT / ESRI WKT
+    * `GEOGCS["WGS 84", DATUM["WGS_1984, SPHERIOD["WGS 84 ...]]]`
+3. authority:code identifier (modern/preferred)
+    * `EPSG: 4326`
+    
+## Projected Coordinate Systems
+
+* Projected coordinates have been projected to two-dimensional space according to a CRS
+* Projected coordinates have an origin, x-axis, y-axis, and unit of measure
+* Conformal projections preserve shape
+* Equal-area projections preserve area
+* Equidistant projections preserve distance
+* Azimuthal projection preserves direction
+
+
+## Projected Coordinate Systems
+
+* Here an example using vector data; see the workbook for an example using raster data
+
+```{r}
+#| label: fig-transformcrs
+#| fig-cap: "PNW State Boundaries."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+library(Rspatialworkshop)
+data("pnw")
+# transform one to the other
+utmz11 <- 2153
+pnw <- st_transform(pnw, crs = utmz11)
+ggplot() + 
+  geom_sf(data = pnw,  color="black", fill=NA) +
+  labs(title="State Boundaries in the Pacific Northwest") +
+  theme_bw() 
+```
+
+## Your Turn
+
+::: task
+Re-project the `pnw` data to a different projected CRS. Then plot using base **R** or `ggplot2`.
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 4)
+```
+
+## Our Turn
+
+::: task2
+ Project to NAD83
+:::
+
+```{r}
+pnw2 <- st_transform(pnw, crs = 5070)
+plot(st_geometry(pnw2))
+```
+
+## A Note on `S2`
+
+* `sf` version `1.0.0` supports spherical geometry operations via its interface to Google's `S2` spherical geometry engine
+* `S2` is an example of a Discrete Global Grid System (DGGS)
+* `sf` can run with `s2` on or off and by default the S2 geometry engine is turned on:
+```{r}
+#| eval: false
+
+sf::sf_use_s2()
+```
+
+## Geographic Data I/O (Input/Ouptut)
+
+There are several ways to read spatial data into R
+
+1. Load spatial data from our machine or a remote source
+2. Load spatial data as part of an **R** package
+3. Load data using an API (which often makes use of an **R** package)
+4. Convert flat files with x, y coordinates to spatial data
+5. Geocoding data "by-hand" (we saw this earlier)
+
+## Vector Data I/O
+
+`sf` can read numerous file types:
+
+1. shapefiles
+2. geodatabases
+3. geopackages
+4. geojson
+5. spatial database files
+
+## Read in a Shapefile
+
+```{r}
+#| label: fig-citylims
+#| fig-cap: "Oregon City Limits"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+filepath <- system.file("extdata/city_limits.shp", package = "Rspatialworkshop")
+citylims <- read_sf(filepath)
+plot(st_geometry(citylims), axes = T, main = "Oregon City Limits")
+```
+
+## Your Turn
+
+::: task
+Run `?read_sf()` and compare `read_sf()` to `st_read()`. Our preference is to use `read_sf()` -- why do you think that is?
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## Our Turn
+
+::: task2
+ 
+`read_sf()` calls `st_read()` with defaults chosen:
+ 
+- `stringsAsFactors = FALSE`
+- `quiet = TRUE`
+- `as_tibble = TRUE`
+ 
+:::
+
+## Read in a Geodatabase
+
+```{r}
+#| label: fig-stateparks
+#| fig-cap: "State Park Boundaries"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+filepath <- system.file("extdata/StateParkBoundaries.gdb", package = "Rspatialworkshop")
+# List all feature classes in a file geodatabase
+st_layers(filepath)
+# Read the feature class
+parks <- st_read(dsn = filepath, layer="StateParkBoundaries")
+ggplot(parks) + 
+  geom_sf()
+```
+
+## Read in a Geopackage
+
+```{r}
+#| label: fig-nc
+#| fig-cap: "North Carolina Counties"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+filepath <- system.file("gpkg/nc.gpkg", package="sf")
+nc <- read_sf(filepath)
+ggplot(nc) + 
+  geom_sf()
+```
+
+## Geopackage Advantages
+
+Why use geopackages over shapefiles?
+
+1. Geopackages avoid mult-file format of shapefiles
+2. Geopackages avoid the 2gb limit of shapefiles
+3. Geopackages are open-source and follow OGC standards
+4. Geopackages are lighter in file size than shapefiles
+5. Geopackages avoid the 10-character limit to column headers in shapefile attribute tables (stored in archaic `.dbf` files)
+
+## Other Approaches
+
+The workbook shows how to read in data using 
+
+1. Open spatial data sources
+2. **R** packages
+3. OpenStreetMap
+
+## Raster Data I/O
+
+* Read in data using `rast()`
+
+```{r}
+#| label: fig-barelev
+#| fig-cap: "Elevation Data Barplot"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+filepath <- system.file("ex/elev.tif", package="terra")
+elev <- rast(filepath)
+barplot(elev, digits = -1, las = 2, ylab = "Frequency")
+```
+
+## Raster Data I/O
+
+```{r}
+#| label: fig-elev
+#| fig-cap: "Elevation Data"
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+plot(elev)
+```
+
+## Raster Data I/O
+
+```{r}
+#| label: fig-L7
+#| fig-cap: "Landsat 7"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+library(stars)
+filepath <- system.file("tif/L7_ETMs.tif", package = "stars")
+L7 <- read_stars(filepath) |>
+  slice(index = 1, along = "band")
+plot(L7)
+```
+
+## Convert Flat Files to Spatial
+
+It is common for a flat file (e.g., a `.csv`) to have columns that indicate coordinates -- how do we turn this into a spatial vector object?
+
+```{r}
+#| label: fig-gagesflat
+#| fig-cap: "Stream Gages From a Flat File"
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+filepath <- system.file("extdata/Gages_flowdata.csv", package = "Rspatialworkshop")
+gages <- read.csv(filepath)
+gages_sf <- gages |>
+  st_as_sf(coords = c("LON_SITE", "LAT_SITE"), crs = 4269, remove = FALSE)
+ggplot(data = gages_sf) + 
+  geom_sf()
+```
+
+# Visualization
+
+## Goals
+
+::: goals
+* Gain familiarity with plotting and visualizing spatial data in R
+* Work with four specific visualization and plotting libraries:
+  + `ggplot2`
+  + `leaflet`
+  + `mapview`
+  + `tmap`
+:::
+
+## Some Advice
+
+Some advice from Martin Tennekes:
+
+- If you know some `ggplot`, don't care about interactive maps, and don't want to spend a lot of time learning new packages, use `ggplot`
+- If you want interactive maps as flexible as possible, use `leaflet`
+- If you want to simply explore spatial objects ineractively as easily as possible, use `mapview`
+- Otherwise, use `tmap`!
+
+Projections are important!
+
+## `ggplot2`
+
+`ggplot2` now supports `geom_sf()`, developed alongside `sf` for pulication quality figures that easily incorporate projections
+
+```{r}
+library(tidycensus)
+library(cowplot)
+mult_tracts <- get_acs(state='OR',county='Multnomah',geography='tract', variables=c('B19013_001','B16010_028','B01003_001'), geometry=TRUE) 
+
+# tidy data
+mult_wide <- mult_tracts |> 
+  sf::st_transform(2153) |> #UTM 11N
+  dplyr::filter(!is.na(estimate)) |> 
+  tidyr::pivot_wider(
+    names_from = c("variable"),
+    values_from = c("estimate","moe")
+  ) |> 
+  dplyr::rename(Median_Income=estimate_B19013_001, College_Education=estimate_B16010_028,Total_Pop=estimate_B01003_001) |> 
+  dplyr::mutate(Perc_College_Ed = (College_Education / Total_Pop) * 100) |> 
+  dplyr::filter(!is.na(Median_Income) & !is.na(Perc_College_Ed))
+```
+
+## `ggplot2`
+
+```{r}
+#| label: fig-medianmc
+#| fig-cap: "Median income in Multnomah County."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+mult_wide |> 
+  ggplot() + 
+  geom_sf(aes(fill = Median_Income)) + 
+  scale_y_continuous() +
+  scale_fill_viridis_c(option = "mako") +
+  theme_minimal_grid(12)
+```
+
+
+## `ggplot2`
+
+```{r}
+#| label: fig-collegemc
+#| fig-cap: "Percent college degree in Multnomah County."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+mult_wide |> 
+  ggplot() +
+  geom_sf(aes(fill = Perc_College_Ed)) + 
+  scale_y_continuous() +
+  scale_fill_viridis_c(option = "mako") +
+  theme_minimal_grid(12)
+```
+
+## Your Turn
+
+::: task 
+ Visualize the counties in your state after an appropriate projection. You can access county data for your state (for us, Oregon) by running
+:::
+ 
+```{r}
+your_state <- "Oregon"
+counties <- tigris::counties("Oregon", cb = TRUE)
+```
+
+```{r}
+#| echo: false
+
+countdown(minutes = 4)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-orcounties
+#| fig-cap: "Oregon Counties."
+#| results: hide
+#| message: false
+#| warning: false
+
+counties |>
+  st_transform(2991) |>
+  ggplot() + 
+  geom_sf(data = counties, fill = NA, color = gray(.5))
+```
+
+## `leaflet`
+
+Javascript based
+
+```{r}
+#| eval: false
+library(leaflet)
+content <- paste(sep = "<br/>",
+  "<b><a href='https://www.epa.gov/greeningepa/pacific-ecological-systems-division-pesd-laboratory'>EPA Lab Corvallis</a></b>",
+  "200 S.W. 35th Street ",
+  "Corvallis, OR 97333 "
+)
+
+leaflet()  |>
+  addTiles()  |> 
+  addPopups(-123.290391, 44.565548,  content,
+    options = popupOptions(closeButton = FALSE)
+  )
+```
+
+## `leaflet`
+
+```{r}
+#| label: fig-epalap
+#| fig-cap: "Corvallis EPA Lab."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/epa_lab.jpg")
+```
+
+## Your Turn
+
+::: task
+Explore some additional `leaflet` features at [https://rstudio.github.io/leaflet/](https://rstudio.github.io/leaflet/). Does anything seem particularly useful for your workflow?
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## `mapview`
+
+```{r}
+#| eval: false
+AOI::aoi_get(list("Corvallis, OR", 10, 10)) |>
+  mapview()
+```
+
+## `mapview`
+
+Uses leaflet
+
+```{r}
+#| label: fig-corvbb
+#| fig-cap: "Corvallis bounding box."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/corvallis_bb.jpg")
+```
+
+## `tmap`
+
+Uses `ggplot2`-inspired syntax and is specifically designed for visualizing spatial data
+
+```{r}
+#| label: fig-oregoncountiestmap
+#| fig-cap: "Oregon counties."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+# Add fill and border layers to Oregon counties
+tm_shape(counties) +
+  tm_fill() +
+  tm_borders() 
+```
+
+## `tmap`
+
+```{r}
+#| label: fig-oregoncountiestmap2
+#| fig-cap: "Median income in Multnomah County."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+# Add fill and border layers to Oregon counties
+tm_shape(mult_wide) +
+  tm_polygons("Median_Income")
+```
+
+## Your Turn
+
+::: task
+Use `tmap` to visualize the percentage of residents with a college degree. Change the number of breaks using `n` and the color palette using `palette`.
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-oregoncountiestmap3
+#| fig-cap: "Percent college degree in Multnomah County."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+# Add fill and border layers to Oregon counties
+tm_shape(mult_wide) +
+  tm_polygons("Perc_College_Ed", n = 2, palette = "BuGn")
+```
+
+## Your Turn
+
+::: task
+Use `tmap` to visualize the median income and the percentage of residents with a college degree using a two-column facet. 
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-oregoncountiestmap4
+#| fig-cap: "Median income and percent college degree in Multnomah County."
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+# Add fill and border layers to Oregon counties
+tm_shape(mult_wide) +
+  tm_polygons(c("Median_Income", "Perc_College_Ed")) +
+  tm_facets(sync = TRUE, ncol = 2)
+```
+
+
+## `tmap`
+
+```{r}
+#| label: fig-crater
+#| fig-cap: "Crater Lake elevation."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+data(CraterLake)
+filepath <- system.file("extdata", "elevation.tif", package = "Rspatialworkshop")
+elevation <- rast(filepath)
+
+tm_shape(CraterLake) +
+  tm_polygons(lwd = 2) +
+  tm_shape(elevation) + 
+  tm_raster(alpha = 0.7,palette = terrain.colors(12)) +
+  tm_layout(legend.position = c("left", "bottom"), legend.width = 1)
+```
+
+# Geoprocessing
+
+## Goals
+
+::: goals
+* Learn about fundamental spatial operations in R using spatial predicates in `sf` for geometric operations
+* Explore performing 'map algebra' type operations with raster data in R
+* Learn how to do extract and zonal operations in R
+:::
+
+## Libraries
+
+Recall that `sf` has functions to access three primary underlying geospatial libraries:
+
+1. `GDAL`: For reading and writing data
+2. `GEOS`: For geometrical operations
+3. `PROJ` for projection conversions and datum transformations
+
+We leverage `sf` and these libraries to perform subsetting, joins, buffering, unions, intersections, clipping, and more
+
+## Simple Features
+
+* `LINESTRING`s are simple if they don't self-intersect
+* `POLYGON`s are simple if their rings are closed, holes are self-contained, and rings don't repeat their own path
+
+## Predicates
+
+* A predicate asserts whether a property is `TRUE`
+* A predicate is unary if it describes the property of a (single) geometry
+    * `is`, `is_simple`, `is_valid()`, `is_empty()`, etc.
+* A predicate is binary if it describes the property of two geometries
+    * `contains()`, `equals()`, `intersects()`, `touches()`, `within()`, etc.
+    
+## Measures and Units
+
+Leverage GEOS to answer questions like:
+
+* How long is a line or polygon perimeter?
+* What is the area of a polygon?
+* What is the distance between two objects?
+
+## Calculating Distances
+
+* Using `st_area()`
+```{r}
+counties_area <- sum(st_area(counties))
+paste0("The total area of all counties in Oregon is ", round(counties_area), " square meters.")
+```
+
+* Between stream gages
+```{r}
+st_distance(gages_sf[1,], gages_sf[2,])
+```
+
+## Your Turn
+
+::: task
+We just calculated the distances between two stream gages in square meters. What if we wanted distance in different units? You can:
+ 
+ * Set a projection that uses the proper units
+ * Use the `units` **R** package to explicitly set units on a vector
+ * Apply the conversion factor manually
+ 
+Use one of these approaches to return the same stream gage distance using different units
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 4)
+```
+
+## Our Turn
+
+```{r}
+# setting projection
+gages_ft <- st_transform(gages_sf, 2994)
+st_distance(gages_ft[1,], gages_ft[2,])
+```
+
+## Spatial Subsetting
+
+* Use subset notation (`[]`) to take a spatial object and return a new spatial object that contains only the features that relate in space to another spatial object
+
+```{r}
+#| eval: false
+
+library(AOI)
+filepath <- system.file("extdata/cities.shp", package = "Rspatialworkshop")
+or_cities <- read_sf(filepath)
+mult_cnty <- aoi_get(state = "OR", county= "Multnomah") |> 
+  st_transform(st_crs(or_cities))
+mult_cities <- or_cities[mult_cnty, , op = st_intersects]
+mapview(mult_cnty, alpha.regions=.07, color='black', lwd=2) +
+  mapview(mult_cities)
+```
+
+## Spatial Subsetting
+
+```{r}
+#| echo: false
+
+library(AOI)
+filepath <- system.file("extdata/cities.shp", package = "Rspatialworkshop")
+or_cities <- read_sf(filepath)
+mult_cnty <- aoi_get(state = "OR", county= "Multnomah") |> 
+  st_transform(st_crs(or_cities))
+mult_cities <- or_cities[mult_cnty, , op = st_intersects]
+```
+
+
+```{r}
+#| label: fig-multcities
+#| fig-cap: "Cities in Multnomah County."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/mult_cities.jpg")
+```
+
+## Your Turn
+
+::: task 
+Now subset all cities within 50,000 meters of a Multnomah county boundary (hint, use the `st_is_within_distance` predicate and the `dist` argument). Then visualize these sites overlain onto the county boundaries using `mapview()`
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 4)
+```
+
+## Our Turn
+
+```{r}
+#| eval: false
+close_mult_cities <- or_cities[mult_cnty, , op=st_is_within_distance,dist=50000]
+mapview(mult_cnty, alpha.regions=.07, color='black', lwd=2) +
+  mapview(close_mult_cities)
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-multcities2
+#| fig-cap: "Cities within 50,000 meters of a Multnomah County boundary."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/close_mult_cities.jpg")
+```
+
+## Spatial Join
+
+We may want to join together information from one spatial data with another spatial data set
+
+```{r}
+counties <- aoi_get(state='Oregon', county='all') |> 
+  st_transform(st_crs(or_cities))
+cty_cnty <- st_join(or_cities, counties['name'], .predicate = st_intersects)
+glimpse(cty_cnty)
+```
+
+## Spatial Join
+
+* Left join is the default: Keep all variables from `x` and add variables from `y` that match a key in `x`
+* Inner join: A left join but remove rows that don't have a matching key in `y`
+
+## Buffer and Dissolve
+
+You may want to create buffers around locations
+
+```{r}
+# Filter for metro areas
+metros <- or_cities |> 
+  dplyr::filter(CITY %in% c('PORTLAND','SALEM','EUGENE','CORVALLIS','BEND','MEDFORD'))
+# Buffer larger cities
+metro_areas <- metros |> 
+  st_buffer(105600)
+```
+
+```{r}
+#| eval: false
+
+mapview(metro_areas)
+```
+
+## Buffer and Dissolve
+
+```{r}
+#| label: fig-citybuffer
+#| fig-cap: "Large Oregon cities with a 20 mile buffer."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/or_cities_buffer.jpg")
+```
+
+## Buffer and Dissolve
+
+Several tidyverse functions to easily dissolve:
+
+```{r}
+counties |>
+  group_by(combined_area_code) |>
+  summarize(mean_land_area = mean(land_area))
+```
+
+## Clipping
+
+```{r}
+#| label: fig-metrogeom
+#| fig-cap: "Metro area geometry."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+#| fig-show: hold
+
+plot(st_geometry(metro_areas[2, ]), axes=TRUE) 
+plot(st_geometry(counties[metro_areas[2,], ]), border = "grey", add = TRUE)
+```
+
+
+## Clipping
+
+Keep only intersecting geometry
+
+```{r}
+#| label: fig-metroclip
+#| fig-cap: "Metro area geometry clipped."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+metro_county_area <- st_intersection(metro_areas[2,], counties)
+plot(st_geometry(metro_county_area), border = "grey", axes = TRUE) 
+```
+
+## Centroids and Type Transformations
+
+A centroid is the center of mass on a feature:
+
+```{r}
+sel_counties <- counties |> 
+  dplyr::filter(name %in% c('Marion','Yamhill','Polk','Benton','Multnomah','Clackamas','Linn','Washington'))
+cnt_cent1 <- st_centroid(sel_counties)
+```
+
+```{r}
+#| eval: false
+tm_shape(sel_counties) +
+  tm_borders() +
+  tm_shape(cnt_cent1) +
+  tm_symbols(shape = 1, col = "black", size = 0.5) 
+```
+
+## Centroids and Type Transformations
+
+```{r}
+#| label: fig-centroids
+#| fig-cap: "Centroids for Oregon select counties."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/or_centroids.jpg")
+```
+
+## Your Turn
+
+::: task
+Sometimes the centroid of a geometry does not lie within the geometry's boundaries. The function `st_point_on_surface()` acts similarly but requires this point is on the surface. In the previous code to visualize the centroids, replace `st_centroid()` with `st_point_on_surface()` and re-visualize.
+:::
+
+```{r}
+#| echo: false
+
+countdown(minutes = 3)
+```
+
+## Our Turn
+
+```{r}
+cnt_cent2 <- st_point_on_surface(sel_counties)
+```
+
+```{r}
+#| eval: false
+
+tm_shape(sel_counties) +
+  tm_borders() +
+  tm_shape(cnt_cent2) +
+  tm_symbols(shape = 1, col = "red", size = 0.5) 
+```
+
+## Our Turn
+
+```{r}
+#| label: fig-centroids2
+#| fig-cap: "Point on surface for Oregon select counties."
+#| fig-align: center
+#| out-width: "100%"
+#| echo: false
+
+knitr::include_graphics("img/or_surface.jpg")
+```
+
+## Centroids and Type Transformations
+
+* `st_centroid()` and `st_point_on_surface()` transform all geometries into `POINT` geometries
+* This is a specific application of a spatial "casting", which casts geometries from one type to another
+* `st_cast()` in `sf
+
+## Simplification
+
+* It can be useful to simplify geometries to save memory and improve efficiency
+
+```{r}
+#| label: fig-santiam
+#| fig-cap: "South Santiam geometry and simplified geometry."
+#| output-location: slide
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
+
+SouthSantiam <- dataRetrieval::findNLDI(nwis = "14187200", nav = "UT", find = "flowlines", distance_km=10)
+SouthSantiam <- SouthSantiam$UT_flowlines |>
+  st_transform(st_crs(counties))
+
+Sant_simp <-  st_simplify(SouthSantiam, dTolerance = 500)  # 500 m
+p1 <-  tm_shape(SouthSantiam) +
+  tm_lines() 
+p2 <-  tm_shape(Sant_simp) +
+  tm_lines() 
+tmap_arrange(p1, p2, ncol = 2)
+```
+
+## Raster Operations
+
+* The workbook has many examples of geoprocessing using raster data
+* Cropping
+* Map algebra (local, focal, and global operations)
+* Zonal operations
+
+# Advanced Applications
+
+## Goals
+
+::: goals
+* Gain familiarity with using web services for several applications in R
+* Learn about using STAC resources in R
+* Know about several extensions for integrating with other GIS software and tools in R
+* Gain some familiarity with spatial sampling and modeling libraries
+:::
+
+## Using Web Services
+
+* Hydrology data with `nhdplusTools` and `dataRetrieval`
+* Watershed data with `StreamCatTools`
+* Elevation as a service
+* OpenDAP and STAC
+
+## Zonal Statistics
+
+* The `zonal` package
+
+## Extensions
+
+* RQGIS
+* R-ArcGIS bridge
+* Accessing Python toolbox using reticulate
+* R Whitebox Tools
+* `rgee`
+
+## Spatial Sampling and Modeling
+
+* `spsurvey` for spatial sampling
+* `spmodel` for spatial modeling
+* `SSN` and `SSN2` for spatial modeling on stream networks
+
+## Acknowledgements
+
+* Thank you so much for attending!
+* Questions?

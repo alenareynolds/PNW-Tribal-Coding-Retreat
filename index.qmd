@@ -1,0 +1,92 @@
+# Welcome {#sec-intro .unnumbered}
+
+Hello and welcome! The purpose of this site is to provide workshop materials for the Spatial Data workshop at the 2023 EPA R User Group Workshop. Slides that accompany this workshop are available for download [linked here](https://github.com/USEPA/spatialdata.epaR2023/blob/main/slides.html) by clicking the "Download raw file" button via the ellipsis or downward arrow symbol on the right side of the screen.
+
+## Workshop Agenda
+
+- 1:00pm - 1:35pm EDT: Introduction and Spatial Data Structures in R
+- 1:35pm - 2:05pm EDT: Vector Data Model
+- 2:05pm - 2:10pm EDT: Break
+- 2:10pm - 2:30pm EDT: Raster Data Model
+- 2:30pm - 3:15pm EDT: Coordinate Reference Systems and I / O
+- 3:15pm - 3:25pm EDT: Break
+- 3:25pm - 3:45pm EDT: Spatial Data Visualization
+- 3:45pm - 4:15pm EDT: Geoprocecessing
+- 4:15pm - 4:20pm EDT: Break
+- 4:20pm - 5:00pm EDT: Advanced Applications
+  
+## Author Introduction
+
+Marc Weber is a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). His work supports various aspects of the USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, and he was one of the developers of and maintains the StreamCat and LakeCat datasets.  His work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.
+
+Michael Dumelle is a statistician for the United States Environmental Protection Agency (USEPA). He works primarily on facilitating the survey design and analysis of USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States. His primary research interests are in spatial statistics, survey design, environmental and ecological applications, and software development.
+
+## Set Up
+
+The packages that we use throughout this workshop are listed below. To install them run:
+```{r}
+#| eval: false
+install.packages("devtools")
+install.packages("remotes")
+install.packages("ggplot2")
+install.packages("cranlogs")
+install.packages("sf")
+install.packages("cowplot")
+install.packages("remotes")
+install.packages("lubridate")
+install.packages("spData")
+install.packages("spDataLarge", repos = "https://nowosad.r-universe.dev")
+remotes::install_github("mhweber/Rspatialworkshop")
+remotes::install_github("mhweber/awra2020spatial")
+install.packages("rnaturalearth")
+devtools::install_github("ropensci/rnaturalearthdata")
+devtools::install_github("ropensci/rnaturalearthhires")
+install.packages("osmdata")
+install.packages("mapview")
+install.packages("tigris")
+install.packages("tidycensus")
+install.packages("tmap")
+install.packages("tmaptools")
+remotes::install_github("mikejohnson51/AOI")
+install.packages("ggspatial")
+install.packages("dataRetrieval")
+install.packages("stars")
+install.packages("elevatr")
+install.packages("nhdplusTools")
+install.packages("terra")
+install.packages("raster")
+remotes::install_github("mikejohnson51/climateR")
+remotes::install_github("USEPA/StreamCatTools", build_vignettes=FALSE)
+remotes::install_github("mikejohnson51/opendap.catalog")
+remotes::install_github("mikejohnson51/zonal")
+install.packages("spsurvey")
+install.packages("spmodel")
+```
+
+## How to follow along with material
+This workshop was built using [Quarto](https://quarto.org/) and *rendered* to html.  If you are familiar with using git and GitHub, you can fork and clone [this repository](https://github.com/mhweber/spatialdata.epaR2023.git), or simply clone directly and open the corresponding .qmd files to follow along with material in RStudio.  You can also copy code snippets from the rendered book site and paste into your code files in RStudio.
+
+[Quarto](https://quarto.org/) is a multi-language, next generation version of R Markdown from RStudio, with many new features and capabilities. Like R Markdown, Quarto uses Knitr to execute R code, and it can render most existing Rmd files without modification.  Like R Markdown the benefits include:
+
+- Allows for reproducible reporting from R
+- You write your document in markdown and embed executable code chunks using the knitr syntax
+- You can update your document at any time by re-knitting the code chunks and convert your document to a number of formats (i.e. html, pdf, word documents)
+- We assume everyone in the workshop is familiar with using RStudio
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| results: hide
+
+library(sf)
+```
+
+
+:::{.callout-note}
+You may click on any of the functions in this book to be directed to their respective documentation. For example, clicking on `st_join()` takes you to the documentation page for the `st_join()` function on the `sf` website.
+:::
+
+## Disclaimer
+
+The views expressed in this manuscript are those of the authors and do not necessarily represent the views or policies of the U.S. Environmental Protection Agency. Any mention of trade names, products, or services does not imply an endorsement by the U.S. government or the U.S. Environmental Protection Agency. The U.S. Environmental Protection Agency does not endorse any commercial products, services, or enterprises.

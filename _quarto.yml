@@ -1,0 +1,32 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "PNW Tribal Coding Retreat"
+  author: "Marc Weber"
+  page-footer:
+    left: |
+      PNW Tribal Coding Reteart Materials written by Marc Weber
+    right: |
+      This book was built with <a href="https://quarto.org/">Quarto</a>.
+  chapters:
+    - index.qmd
+    - foundations.qmd
+    - mapping.qmd
+    - geoprocessing.qmd
+    - resources.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+    code-link: true
+    toc: true
+    toc-depth: 4
+
+
+
+
