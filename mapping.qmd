@@ -50,46 +50,7 @@ Here we'll show some of the useful functionality of `ggplot2` with `geom_sf` obj
 Note that to use `tidycensus` you'll need to set your Census API key. A key can be obtained from [here](http://api.census.gov/data/key_signup.html).
 :::
 
-```{r message=FALSE, error=FALSE, warning=FALSE}
-#| message: false
-#| error: false
-#| warning: false
-#| echo: true
-#| results: hide
 
-mult_tracts <- tidycensus::get_acs(state='OR',county='Multnomah',geography='tract', variables=c('B19013_001','B16010_028','B01003_001'), geometry=TRUE)  
-
-# tidy data
-mult_wide <- mult_tracts |> 
-  sf::st_transform(2153) |> #UTM 11N
-  dplyr::filter(!is.na(estimate)) |> 
-  tidyr::pivot_wider(
-    names_from = c("variable"),
-    values_from = c("estimate","moe")
-  ) |> 
-  dplyr::rename(Median_Income=estimate_B19013_001, College_Education=estimate_B16010_028,Total_Pop=estimate_B01003_001) |> 
-  dplyr::mutate(Perc_College_Ed = (College_Education / Total_Pop) * 100) |> 
-  dplyr::filter(!is.na(Median_Income) & !is.na(Perc_College_Ed))
-  
-    
-# Median Income
-mult_wide |> 
-  ggplot() + geom_sf(aes(fill = Median_Income)) + 
-  scale_y_continuous() +
-  scale_fill_viridis_c(option = "mako") +
-  theme_minimal_grid(12)
-```
-
-```{r message=FALSE, error=FALSE, warning=FALSE}
-#| message: false
-#| error: false
-#| warning: false
-mult_wide |> 
-  ggplot() + geom_sf(aes(fill = Perc_College_Ed)) + 
-  scale_y_continuous() +
-  scale_fill_viridis_c(option = "mako") +
-  theme_minimal_grid(12)
-```
 
 A great resource for mapping with `ggplot2` is [this blog post from 2018](https://r-spatial.org/r/2018/10/25/ggplot2-sf-2.html). 
 
@@ -173,7 +134,9 @@ mapview(gages_benton) + benton
 
 We can also use handy convenience packages like the [AOI](https://mikejohnson51.github.io/AOI/) package by Mike Johnson for flexible, term based geocoding to return areas of interest as `sf` objects and map them:
 ```{r}
-AOI::aoi_get(list("Corvallis, OR", 10, 10)) |> mapview()
+AOI::aoi_ext(geo = "Corvallis, OR", wh = 10000, bbox = TRUE) |> 
+  sf::st_as_sf() |>
+  AOI::aoi_map(returnMap = T)
 ```
 
 ::: {.callout-note appearance="simple" icon="false"}
