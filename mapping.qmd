@@ -50,7 +50,40 @@ Here we'll show some of the useful functionality of `ggplot2` with `geom_sf` obj
 Note that to use `tidycensus` you'll need to set your Census API key. A key can be obtained from [here](http://api.census.gov/data/key_signup.html).
 :::
 
+```{r}
+mult_tracts <- tidycensus::get_acs(state='OR',county='Multnomah',geography='tract', variables=c('B19013_001','B16010_028','B01003_001'), geometry=TRUE)  
 
+# tidy data
+mult_wide <- mult_tracts |> 
+  sf::st_transform(2955) |> #UTM 11N
+  dplyr::filter(!is.na(estimate)) |> 
+  tidyr::pivot_wider(
+    names_from = c("variable"),
+    values_from = c("estimate","moe")
+  ) |> 
+  dplyr::relocate(geometry, .after = last_col())
+
+names(mult_wide)[3:5] <- c('Total_Pop','College_Education','Median_Income')
+mult_wide <- mult_wide |> 
+  dplyr::mutate(Perc_College_Ed = (College_Education / Total_Pop) * 100) |> 
+  dplyr::filter(!is.na(Median_Income) & !is.na(Perc_College_Ed))
+  
+    
+# Median Income
+mult_wide |> 
+  ggplot() + geom_sf(aes(fill = Median_Income)) + 
+  scale_y_continuous() +
+  scale_fill_viridis_c(option = "mako") +
+  theme_minimal_grid(12)
+```
+
+```{r}
+mult_wide |> 
+  ggplot() + geom_sf(aes(fill = Perc_College_Ed)) + 
+  scale_y_continuous() +
+  scale_fill_viridis_c(option = "mako") +
+  theme_minimal_grid(12)
+```
 
 A great resource for mapping with `ggplot2` is [this blog post from 2018](https://r-spatial.org/r/2018/10/25/ggplot2-sf-2.html). 
 
@@ -213,20 +246,6 @@ tm_shape(counties) +
 tm_shape(counties) +
   tm_fill() +
   tm_borders() 
-```
-
-### Basemaps with `tmap`
-```{r}
-data(metro)
-oregon_cnties <- st_transform(counties, 4326) 
-metro |> 
-  st_transform(4326) |> 
-  st_crop(st_bbox(oregon_cnties))  -> or_metro
-tmap_mode("view")
-tm_basemap("OpenStreetMap") +
-tm_shape(or_metro) + tm_bubbles(size = "pop2020", col = "red") +
-tm_tiles(paste0("http://services.arcgisonline.com/arcgis/rest/services/Canvas/",
-    "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"), group = "Labels")
 ```
 
 ### Choropleths with `tmap`
