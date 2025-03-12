@@ -46,27 +46,6 @@ Much of this background on data structures is borrowed from Mike Johnson's [Intr
 
 Before we dive into spatial libraries, it's worth a quick review of relevant data structures in R - this will be a whirlwind overview, assuming most everyone is familiar with using R already.
 
-- You, computers, and software 'understand' values in particular and different ways
-
-- Computers convert bytes --> hex --> value
-  + Humans read values
-  + Software reads Hex bytes
-  + Hardware reads Binary bytes
-
-```{r, fig.align='center', echo = FALSE, out.width="75%" }
-knitr::include_graphics("img/values.PNG")
-```
-
-:::{.callout-note}
-What's the difference between 10 and '10'?
-
-- **To us**: meaning
-- **To software**: how it is handled
-- **To a computer**: nothing
-
-We need human-defined (computer-guessable) data types
-:::
-
 Fundamental data types
 ```{r}
 # Numeric
@@ -197,7 +176,7 @@ x[,,1]
 
 ### Lists
 
-Eash list element can be any data type
+Each list element can be any data type
 ```{r}
 (my_list <- list(
   matrix(1:4, nrow = 2), 
@@ -264,7 +243,7 @@ _ Manipulation:
 
 - The pipe operator (native R pipe operator `|>` or `magrittr` pipe operator `%>%`) provides a more concise and expressive coding experience
 - The pipe passes the object on the left hand side of the pipe into the first argument of the right hand function
-- To be  `|>`  compatible, the data.frame is ALWAYS the fist argument to `dplyr` verbs
+- To be  `|>`  compatible, the data.frame is ALWAYS the first argument to `dplyr` verbs
 
 A demonstration using `dataRetrieval` package stream gage data from USGS:
 ```{r}
@@ -561,19 +540,19 @@ Typically we don't build these up from scratch ourselves but it's important to u
 ::: {.callout-note appearance="simple" icon="true" collapse="true"}
 - All functions and methods in `sf` that operate on spatial data are prefixed by `st_`, which refers to spatial type.
 - This is similar to [PostGIS](http://postgis.net/)
-- This makes them `sf` functions easily discoverable by command-line completion. 
+- This makes `sf` functions easily discoverable by command-line completion. 
 - Simple features are also native R data, using simple data structures (S3 classes, lists, matrix, vector). 
 :::
 
 These primitives can all be broken down into set(s) of numeric x,y coordinates with a known coordinate reference system (crs).
 
 #### Points
-- A point in `sf` is composed of one coordinate pair (XY) in a specific coordinate system.
+- A POINT in `sf` is composed of one coordinate pair (XY) in a specific coordinate system.
 - A POINT has no length, no area and a dimension of 0.
-- **z** and **m** coordinates As well as having the necessary X and Y coordinates, single point (vertex) simple features can have:
+- A POINT can have **z** and **m** coordinates as well as having the necessary X and Y coordinates. Single point (vertex) simple features can have:
 
--   a Z coordinate, denoting altitude, and/or
--   an M value, denoting some "measure"
+  - a Z coordinate, denoting altitude, and/or
+  - an M value, denoting some "measure" (i.e. time of measure, measurement error)
 
 ```{r}
 # create sf object as point
@@ -748,7 +727,7 @@ Raster data can be *continuous* (e.g. elevation, precipitation, atmospheric depo
 knitr::include_graphics("img/Rasters4.png")
 ```
 
-Support for gridded data in R in recent year has been best implemented with the `raster` package by Robert Hijmans. The `raster` package allowed you to:
+Support for gridded data in R in recent years has been best implemented with the `raster` package by Robert Hijmans. The `raster` package allowed you to:
 
 * read and write almost any commonly used raster data format
 * perform typical raster processing operations such as resampling, projecting, filtering, raster math, etc.
@@ -834,7 +813,7 @@ ext(myrast)[1]
 :::
 
 #### Manipulating `terra` objects
-So far we've just constructed a raster container with no values (try plotting what we have so far) - let's provide values to the cells using the `runif` function to derive random values from thedata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAASCAYAAABit09LAAAAI0lEQVR4XmNgGAWjAB0ICAj8JwYTpZgok1EUwQBRimAAlyIA2/cjg5a5o9gAAAAASUVORK5CYII= uniform distribution:
+So far we've just constructed a raster container with no values (try plotting what we have so far) - let's provide values to the cells using the `runif` function to derive random values from the data using the uniform distribution:
 ```{r runif, message=FALSE, warning=FALSE, error=FALSE}
 #show we have no values
 hasValues(myrast)
@@ -978,11 +957,11 @@ There is no 'on-the-fly' projection in R - you need to make sure you specify the
 A coordinate reference system for spatial data can be defined in different ways - for instance for the standard WGS84 coordinate system you could use:
 
 - Proj4
-  + ```+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs```
+  + ```{r tidy=FALSE}+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs```
 - OGC WKT
-  + ```GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]```
+  + ```{r tidy=FALSE}GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]```
 - ESRI WKT
-  + ```GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]]```
+  + ```{r tidy=FALSE}GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]]```
 - 'authority:code' identifier
   + `EPSG:4326`
 
