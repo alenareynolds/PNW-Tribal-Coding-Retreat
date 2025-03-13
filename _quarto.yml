@@ -15,6 +15,7 @@ book:
     - foundations.qmd
     - mapping.qmd
     - geoprocessing.qmd
+    - advanced_applications
     - resources.qmd
 
 format:
