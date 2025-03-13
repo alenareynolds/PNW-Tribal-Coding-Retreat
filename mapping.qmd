@@ -50,7 +50,9 @@ Here we'll show some of the useful functionality of `ggplot2` with `geom_sf` obj
 Note that to use `tidycensus` you'll need to set your Census API key. A key can be obtained from [here](http://api.census.gov/data/key_signup.html).
 :::
 
-```{r}
+```{r, results='hide'}
+#|warning: false
+#|message: false
 mult_tracts <- tidycensus::get_acs(state='OR',county='Multnomah',geography='tract', variables=c('B19013_001','B16010_028','B01003_001'), geometry=TRUE)  
 
 # tidy data
@@ -126,7 +128,7 @@ ggplot() +
 ## leaflet
 [Leaflet](https://leafletjs.com/) is an extremely popular open-source javascript library for interactive web mapping, and the `leaflet` R package allows R users to create Leaflet maps from R. `Leaflet` can plot `sf` or `sp` objects, or x / y coordinates, and can plot points, lines or polygons. There are a number of [base layers you can choose from](http://leaflet-extras.github.io/leaflet-providers/preview/index.html).  It's worth spending some time exploring the excellent [Leaflet for R site](https://rstudio.github.io/leaflet/).
 
-Here we make a simple leaflet map of our the location of the EPA Pacific Ecological Systems Division lab in Corvallis where I work with a custom popup we create:
+Here we make a simple leaflet map of the location of the EPA Pacific Ecological Systems Division lab in Corvallis where I work with a custom popup we create:
 ```{r leaflet, message=FALSE, warning=FALSE, error=FALSE}
 content <- paste(sep = "<br/>",
   "<b><a href='https://www.epa.gov/greeningepa/pacific-ecological-systems-division-pesd-laboratory'>EPA Lab Corvallis</a></b>",
@@ -185,7 +187,7 @@ mapview(gages_benton,zcol='AVE') + mapview(benton, alpha.regions=.07, color='bla
 :::
 
 ### Adding Web Map services in `mapview`
-We'll visualize data with `mapview` and load a web map service layers alongside using `mapview` and underlying `leaflet` functionality.
+We'll visualize data with `mapview` and load a web map service layer using underlying `leaflet` functionality.
 
 First we load load an excel file containing coordinate information in a known projection and promote to an `sf` spatial data frame.
 ```{r message=FALSE, error=FALSE, warning=FALSE}

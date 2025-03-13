@@ -254,7 +254,11 @@ mapview(sel_counties, alpha.regions=.07, color='black', lwd=2) + mapview(my_citi
 :::
 
 ## Spatial Join 
-Often we want to **join** information from one spatial dataset to another based on a spatial relationship rather than attribute relationships - joining attribute data should be a familiar concept to everyone and many of the principles are the same. `st_join` will add new columns from from a source spatial dataset to the target spatial dataset.  
+Often we want to **join** information from one spatial dataset to another based on a spatial relationship rather than attribute relationships.
+
+Geocomputation with R has [a nice overview of spatial joins](https://r.geocompx.org/spatial-operations#spatial-joining) using `st_join` as well as [thorough background on joining non-spatial data to spatial data based on a common key](https://r.geocompx.org/attr#vector-attribute-joining) (which we very often need to do).
+
+`st_join` will add new columns from from a source spatial dataset to the target spatial dataset.  
 
 By default `st_join` performs a **left join** (all rows in the target including rows with no match in the source data) - but you can also do an **inner join** by setting `left=FALSE`. 
 
@@ -438,7 +442,7 @@ tmap_arrange(p1, p2, ncol = 2)
 ### Cropping
 We'll use some built in data from a previous workshop to demonstrate a number of simple raster geoprocessing operations.
 
-We'll start with an elevation raster and Crater Lake boundary and project both to an local conformal  projection (UTM Z10 North)
+We'll start with an elevation raster and Crater Lake boundary and project both to a local conformal  projection (UTM Z10 North)
 ```{r}
 #| message: false
 #| error: false

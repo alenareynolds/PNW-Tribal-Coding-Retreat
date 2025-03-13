@@ -957,13 +957,23 @@ There is no 'on-the-fly' projection in R - you need to make sure you specify the
 A coordinate reference system for spatial data can be defined in different ways - for instance for the standard WGS84 coordinate system you could use:
 
 - Proj4
-  + ```{r tidy=FALSE}+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs```
+  +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs
+
 - OGC WKT
-  + ```{r tidy=FALSE}GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]```
+  GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",
+  6378137,298.257223563,AUTHORITY["EPSG","7030"]],
+  AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,
+  AUTHORITY["EPSG","8901"]],UNIT["degree",
+  0.01745329251994328,AUTHORITY["EPSG","9122"]],
+  AUTHORITY["EPSG","4326"]]
+
 - ESRI WKT
-  + ```{r tidy=FALSE}GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]]```
+  GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",
+  SPHEROID["WGS_1984",6378137,298.257223563]],
+  PRIMEM["Greenwich",0],UNIT["Degree",
+  0.017453292519943295]]
 - 'authority:code' identifier
-  + `EPSG:4326`
+  EPSG:4326
 
 Proj4 used to be the standard crs identifier in R but the preferable way is to use the AUTHORITY:CODE method which `sf` as well as software like [QGIS](https://docs.qgis.org/3.16/en/docs/user_manual/working_with_projections/working_with_projections.html) will recognize. The AUTHORITY:CODE method is durable and easily discoverable online.
 
