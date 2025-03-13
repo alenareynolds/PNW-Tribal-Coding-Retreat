@@ -418,5 +418,55 @@
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Advanced Applications</span>"
     ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "PNW Tribal Coding Retreat",
+    "section": "",
+    "text": "Welcome\nThis site provides material presented at the PNW Tribal Coding Retreat in March 2025. Slides that accompany this workshop are available for download linked here by clicking the “Download raw file” button via the ellipsis or downward arrow symbol on the right side of the screen.\nMaterial here is borrowed from a half-day workshop presented to the EPA R User Group meeting in 2023 - the particular sections we’ll focus on are:",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "index.html#introduction",
+    "href": "index.html#introduction",
+    "title": "PNW Tribal Coding Retreat",
+    "section": "Introduction",
+    "text": "Introduction\nMarc Weber is a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). His work supports various aspects of the USEPA’s National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, and he was one of the developers of and maintains the StreamCat and LakeCat datasets. His work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "index.html#set-up",
+    "href": "index.html#set-up",
+    "title": "PNW Tribal Coding Retreat",
+    "section": "Set Up",
+    "text": "Set Up\nThe packages that we use throughout this workshop are listed below. To install them run:\n\ninstall.packages(\"devtools\")\ninstall.packages(\"remotes\")\ninstall.packages(\"ggplot2\")\ninstall.packages(\"cranlogs\")\ninstall.packages(\"sf\")\ninstall.packages(\"cowplot\")\ninstall.packages(\"remotes\")\ninstall.packages(\"lubridate\")\ninstall.packages(\"spData\")\ninstall.packages(\"spDataLarge\", repos = \"https://nowosad.r-universe.dev\")\nremotes::install_github(\"mhweber/Rspatialworkshop\")\nremotes::install_github(\"mhweber/awra2020spatial\")\ninstall.packages(\"rnaturalearth\")\ndevtools::install_github(\"ropensci/rnaturalearthdata\")\ndevtools::install_github(\"ropensci/rnaturalearthhires\")\ninstall.packages(\"osmdata\")\ninstall.packages(\"mapview\")\ninstall.packages(\"tigris\")\ninstall.packages(\"tidycensus\")\ninstall.packages(\"tmap\")\ninstall.packages(\"tmaptools\")\nremotes::install_github(\"mikejohnson51/AOI\")\ninstall.packages(\"ggspatial\")\ninstall.packages(\"dataRetrieval\")\ninstall.packages(\"stars\")\ninstall.packages(\"elevatr\")\ninstall.packages(\"nhdplusTools\")\ninstall.packages(\"terra\")\ninstall.packages(\"raster\")\nremotes::install_github(\"mikejohnson51/climateR\")\nremotes::install_github(\"USEPA/StreamCatTools\", build_vignettes=FALSE)\nremotes::install_github(\"mikejohnson51/opendap.catalog\")\nremotes::install_github(\"mikejohnson51/zonal\")",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-follow-along-with-material",
+    "href": "index.html#how-to-follow-along-with-material",
+    "title": "PNW Tribal Coding Retreat",
+    "section": "How to follow along with material",
+    "text": "How to follow along with material\nThis workshop was built using Quarto and rendered to html. If you are familiar with using git and GitHub, you can fork and clone this repository, or simply clone directly and open the corresponding .qmd files to follow along with material in RStudio. You can also copy code snippets from the rendered book site and paste into your code files in RStudio.\nQuarto is a multi-language, next generation version of R Markdown from RStudio, with many new features and capabilities. Like R Markdown, Quarto uses Knitr to execute R code, and it can render most existing Rmd files without modification. Like R Markdown the benefits include:\n\nAllows for reproducible reporting from R\nYou write your document in markdown and embed executable code chunks using the knitr syntax\nYou can update your document at any time by re-knitting the code chunks and convert your document to a number of formats (i.e. html, pdf, word documents)\nWe assume everyone in the workshop is familiar with using RStudio\n\n\n\n\n\n\n\nNote\n\n\n\nYou may click on any of the functions in this book to be directed to their respective documentation. For example, clicking on st_join() takes you to the documentation page for the st_join() function on the sf website.",
+    "crumbs": [
+      "Welcome"
+    ]
+  },
+  {
+    "objectID": "index.html#disclaimer",
+    "href": "index.html#disclaimer",
+    "title": "PNW Tribal Coding Retreat",
+    "section": "Disclaimer",
+    "text": "Disclaimer\nThe views expressed in this manuscript are those of the authors and do not necessarily represent the views or policies of the U.S. Environmental Protection Agency. Any mention of trade names, products, or services does not imply an endorsement by the U.S. government or the U.S. Environmental Protection Agency. The U.S. Environmental Protection Agency does not endorse any commercial products, services, or enterprises.",
+    "crumbs": [
+      "Welcome"
+    ]
   }
 ]

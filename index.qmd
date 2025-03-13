@@ -2,6 +2,14 @@
 
 This site provides material presented at the PNW Tribal Coding Retreat in March 2025. Slides that accompany this workshop are available for download [linked here](https://github.com/mhweber/Tribal-Coding-Retreat/blob/main/slides.html) by clicking the "Download raw file" button via the ellipsis or downward arrow symbol on the right side of the screen.
 
+Material here is borrowed from a half-day workshop presented to the EPA R User Group meeting in 2023 - the particular sections we'll focus on are:
+
+- A walk through of some of the material in [Foundations](#sec-foundations)
+- Quick discussion of some [geoprocessing](#sec-geoprocessing) ideas
+- Focus on some [mapping approaches](#sec-mapping)
+- A look at several tools for using [web services for hydrologic spatial analysis](advanced_applications.qmd## Using Web Services)
+
+
 ## Introduction
 
 Marc Weber is a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). His work supports various aspects of the USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, and he was one of the developers of and maintains the StreamCat and LakeCat datasets.  His work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.
