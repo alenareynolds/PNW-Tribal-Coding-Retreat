@@ -34,8 +34,7 @@ library(knitr)
 library(dplyr)
 library(rnaturalearth)
 library(osmdata)
-library(terra)
-library(stars)
+library(tidyterra)
 ```
 
 ## Background on data structures

@@ -26,6 +26,8 @@ library(zonal)
 library(cowplot)
 library(spsurvey)
 library(spmodel)
+library(dplyr)
+library(readr)
 ```
 
 ## Using Web Services
@@ -46,7 +48,7 @@ corvallis$gages <- nhdplusTools::get_nwis(AOI::aoi_ext(geo = "Corvallis, OR", wh
 mapview(corvallis)
 ```
 
-Pretty cool.  All that data in a one-liner!
+Pretty cool.  All that data in two lines!
 
 Next we'll go back to the South Santiam basin we derived in the geoprocessing section and we'll grab all the gage data in the basin.  We'll get stream flow data for the gages using `dataRetrieval`  flow data in `dataRetrieval` is accessed with code '00060' which can be found with `dataRetrieval::parameterCdFile`.  See the [dataRetrieval package website](https://doi-usgs.github.io/dataRetrieval/) for documentation and tutorials.
 
@@ -57,14 +59,14 @@ SouthSantiam <- nhdplusTools::navigate_nldi(nldi_feature,  mode = "upstreamTribu
 basin <- nhdplusTools::get_nldi_basin(nldi_feature = nldi_feature)
 
 gages <- nhdplusTools::get_nwis(basin)
-mapview(SouthSantiam) + mapview(basin) + mapview(gages)
+mapview(SouthSantiam, legend=FALSE) + mapview(basin) + mapview(gages)
 ```
 
 Notice we pulled in some stream gages within the **bounding box** of our basin but not within the watershed - let's fix that with `st_intersection`:
 ```{r}
 #| warning: false
 gages <- sf::st_intersection(gages, basin)
-mapview(SouthSantiam) + mapview(basin) + mapview(gages)
+mapview(SouthSantiam, legend=FALSE) + mapview(basin) + mapview(gages)
 ```
 
 Now we'll grab stream flow data for our watershed with `dataRetrieval`:
@@ -124,7 +126,7 @@ mapview(elev)
 ### OpenDAP and STAC
 [OPeNDAP](https://opendap.org/) allows us to access geographic or temporal slices of massive datasets over HTTP via web services. STAC similarly is a specification that allows us to access geospatial assets via web services. Using STAC you can access a massive trove of resources on Microsoft Planetary Computer via the `rstac` package as in [examples here](https://planetarycomputer.microsoft.com/docs/quickstarts/reading-stac-r/).
 
-Here we'll just show an example of using OpenDAP via Mike Johnson's [OpenDAP Catalog](https://mikejohnson51.github.io/opendap.catalog/) and [ClimateR](https://mikejohnson51.github.io/climateR/) packages.
+Here we'll just show an example of using OpenDAP via Mike Johnson's [OpenDAP Catalog](https://mikejohnson51.github.io/opendap.catalog/) and [ClimateR](https://mikejohnson51.github.io/climateR/) packages. Some of this from an [Internet of Water webinar in 2022 with Mike Johnson and Taher Chagini](https://mikejohnson51.github.io/IOW2022_R/slides.html)
 
 ```{r}
 #| warning: false
@@ -140,15 +142,49 @@ opendap.catalog::search("monthly swe")
 
 And we can extract a particular resource (in this case PRISM climate data) using `climateR` - we'll go back to using our counties in Oregon data from earlier.
 ```{r}
-counties <- aoi_get(state='Oregon', county='all')
+library(climateR)
+counties <- AOI::aoi_get(state='Oregon', county='all')
 gridmet_or <- getGridMET(AOI = counties,
                  varname = "pr",
                  startDate = "2020-01-01",
                  endDate  = "2020-01-30")
 gridmet_or  <- terra::rast(gridmet_or)
 
-names(gridmet_or )
+# names(gridmet_or )
 plot(gridmet_or )
+```
+
+## Transect example
+```{r}
+d = dataRetrieval::findNLDI(location = c(-123.253375,44.553757), nav = "UM", find = c("flowlines", "basin")) 
+
+mapview(d, legend = FALSE)
+```
+
+```{r}
+elev <- crop(
+    terra::rast("/vsicurl/http://mikejohnson51.github.io/opendap.catalog/ned_USGS_1.vrt"),
+    terra::vect(d$basin)
+  )
+  
+
+transect = extract(elev, vect(st_union(d$UM_flowlines))) |> 
+  mutate(location = c(n():1))
+
+ggplot(transect, aes(x = location, y = ned_USGS_1)) +
+    geom_line() +
+    geom_smooth()
+```
+
+## Geoconnex
+
+Geoconnex builds and maintains the infrastructure and data needed to “make water data as easily discover-able, accessible, and usable as possible.”One of the datasets that this system has minted Persistent Identifiers (PIDs) for is a collection of USA mainstems. To be a “PID” a resource - in this case spatial feature - has to have a unique URI that can be resolved. This URI are store as JSON-LD, which, can be read by GDAL! So, if you can identify the geoconnex resource you want, you can read it into R and have confidence the URI will not change on you:
+```{r}
+feat = read_sf('https://geoconnex.us/ref/mainstems/1426120') 
+mapview(feat$geometry)
+
+
+
 ```
 
 ## Zonal Statistics

@@ -34,7 +34,7 @@ options(width = 80)
 library(countdown)
 ```
 
-## Welcome!
+## Details
 
 1. Please visit [https://mhweber.github.io/PNW-Tribal-Coding-Retreat/](https://mhweber.github.io/PNW-Tribal-Coding-Retreat/) to view the workshop's accompanying workbook
 
@@ -42,13 +42,11 @@ library(countdown)
 
 3. (Optional) Download the workshop slides (instructions in the workbook's "Welcome" section)
 
-4. (Optional) Fill out the poll so we can better understand attendee's level of experience handling spatial data
-
-5. Follow along and have fun!
+4. Follow along and enjoy!
 
 ## Who Am I?
 
-Marc Weber is a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). His work supports various aspects of the USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, as he helped develop and maintains the StreamCat and LakeCat datasets.  His work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.
+I'm a geographer at the Pacific Ecological Systems Division (PESD) at the United States Environmental Protection Agency (USEPA). My work supports various aspects of the USEPA's National Aquatic Resource Surveys (NARS), which characterize the condition of waters across the United States, and I help to develop and maintain the [StreamCat](https://www.epa.gov/national-aquatic-resource-surveys/streamcat-dataset) and [LakeCat](https://www.epa.gov/national-aquatic-resource-surveys/lakecat-dataset) datasets.  My work focuses on spatial analysis in R and Python, Geographic Information Science (GIS), aquatic ecology, remote sensing, open source science and environmental modeling.
 
 ## Disclaimer
 
@@ -871,34 +869,42 @@ Projections are important!
 
 `ggplot2` now supports `geom_sf()`, developed alongside `sf` for pulication quality figures that easily incorporate projections
 
-```{r, eval=FALSE}
+```{r}
+#| fig-width: 8
+#| results: hide
+#| message: false
+#| warning: false
 library(tidycensus)
 library(cowplot)
 mult_tracts <- get_acs(state='OR',county='Multnomah',geography='tract', variables=c('B19013_001','B16010_028','B01003_001'), geometry=TRUE) 
 
 # tidy data
 mult_wide <- mult_tracts |> 
-  sf::st_transform(2153) |> #UTM 11N
+  sf::st_transform(2955) |> #UTM 11N
   dplyr::filter(!is.na(estimate)) |> 
   tidyr::pivot_wider(
     names_from = c("variable"),
     values_from = c("estimate","moe")
   ) |> 
-  dplyr::rename(Median_Income=estimate_B19013_001, College_Education=estimate_B16010_028,Total_Pop=estimate_B01003_001) |> 
+  dplyr::relocate(geometry, .after = last_col())
+
+names(mult_wide)[3:5] <- c('Total_Pop','College_Education','Median_Income')
+mult_wide <- mult_wide |> 
   dplyr::mutate(Perc_College_Ed = (College_Education / Total_Pop) * 100) |> 
   dplyr::filter(!is.na(Median_Income) & !is.na(Perc_College_Ed))
 ```
 
 ## `ggplot2`
 
-```{r, eval=FALSE}
+```{r}
 #| label: fig-medianmc
 #| fig-cap: "Median income in Multnomah County."
 #| fig-width: 8
 #| results: hide
 #| message: false
 #| warning: false
-
+#| output-location: slide
+library(ggplot2)
 mult_wide |> 
   ggplot() + 
   geom_sf(aes(fill = Median_Income)) + 
@@ -910,14 +916,14 @@ mult_wide |>
 
 ## `ggplot2`
 
-```{r, eval=FALSE}
+```{r}
 #| label: fig-collegemc
 #| fig-cap: "Percent college degree in Multnomah County."
 #| fig-width: 8
 #| results: hide
 #| message: false
 #| warning: false
-
+#| output-location: slide
 mult_wide |> 
   ggplot() +
   geom_sf(aes(fill = Perc_College_Ed)) + 
@@ -1044,7 +1050,7 @@ tm_shape(counties) +
 
 ## `tmap`
 
-```{r, eval=FALSE}
+```{r}
 #| label: fig-oregoncountiestmap2
 #| fig-cap: "Median income in Multnomah County."
 #| fig-width: 8
@@ -1071,7 +1077,7 @@ countdown(minutes = 3)
 
 ## Our Turn
 
-```{r, eval=FALSE}
+```{r}
 #| label: fig-oregoncountiestmap3
 #| fig-cap: "Percent college degree in Multnomah County."
 #| fig-width: 8
@@ -1098,7 +1104,7 @@ countdown(minutes = 3)
 
 ## Our Turn
 
-```{r, eval=FALSE}
+```{r}
 #| label: fig-oregoncountiestmap4
 #| fig-cap: "Median income and percent college degree in Multnomah County."
 #| fig-width: 8
@@ -1494,8 +1500,6 @@ tmap_arrange(p1, p2, ncol = 2)
 ::: goals
 * Gain familiarity with using web services for several applications in R
 * Learn about using STAC resources in R
-* Know about several extensions for integrating with other GIS software and tools in R
-* Gain some familiarity with spatial sampling and modeling libraries
 :::
 
 ## Using Web Services
@@ -1508,22 +1512,3 @@ tmap_arrange(p1, p2, ncol = 2)
 ## Zonal Statistics
 
 * The `zonal` package
-
-## Extensions
-
-* RQGIS
-* R-ArcGIS bridge
-* Accessing Python toolbox using reticulate
-* R Whitebox Tools
-* `rgee`
-
-## Spatial Sampling and Modeling
-
-* `spsurvey` for spatial sampling
-* `spmodel` for spatial modeling
-* `SSN` and `SSN2` for spatial modeling on stream networks
-
-## Acknowledgements
-
-* Thank you so much for attending!
-* Questions?

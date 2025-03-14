@@ -38,6 +38,8 @@ library(tmap)
 library(Rspatialworkshop)
 library(terra)
 library(raster)
+library(ggplot2)
+library(tidyterra)
 ```
 
 ## Operations on Geometries
@@ -456,14 +458,21 @@ plot(elevation)
 plot(CraterLake, add=TRUE, col=NA, border='blue')
 ```
 
-Here we'll use `crop` to crop the elevation raster to the bounding box of our Crater Lake polygon feature
+Here we'll use `crop` to crop the elevation raster to the bounding box of our Crater Lake polygon feature.
+
+We'll also use `tidyterra` to plot our `terra` raster in `ggplot`
 ```{r}
 #| message: false
 #| error: false
 #| warning: false
 elev_crop = crop(elevation, vect(CraterLake))
-plot(elev_crop)
-plot(CraterLake, add=TRUE, col=NA, border='blue')
+ggplot() + 
+  tidyterra::geom_spatraster(data = elev_crop) + 
+  geom_sf(data = CraterLake, 
+          fill = NA, 
+          color = 'blue', 
+          lwd = 2) +
+  theme_bw()
 ```
 
 And finally we can use `mask` to mask the raster to just inside the polygon outline of Crater Lake National Park.  
@@ -484,8 +493,13 @@ knitr::include_graphics("img/tweet2.png")
 #| error: false
 #| warning: false
 elev_mask = mask(elevation, vect(CraterLake))
-plot(elev_mask)
-plot(CraterLake, add=TRUE, col=NA, border='blue')
+ggplot() + 
+  tidyterra::geom_spatraster(data = elev_mask) + 
+  geom_sf(data = CraterLake, 
+          fill = NA, 
+          color = 'blue', 
+          lwd = 2) +
+  theme_bw()
 ```
 
 ### Map Algebra
@@ -558,6 +572,32 @@ plot(elev_focal_mean)
 terra::global(elev_mask, fun="mean", na.rm=TRUE)
 terra::global(elev_mask, fun="sum", na.rm=TRUE)
 ```
+
+### Terrain Metrics
+```{r}
+#| message: false
+#| error: false
+#| warning: false
+# Calculate several terrain metrics
+terrain_metrics <- terra::terrain(elev_mask, 
+                           v = c('slope', 'roughness', 'TRI','TPI'))
+```
+
+```{r}
+#| message: false
+#| error: false
+#| warning: false
+ggplot() + 
+  geom_spatraster(data = terrain_metrics) + 
+  facet_wrap(~lyr, ncol = 2) + 
+  scale_fill_whitebox_c(
+    palette = "muted",
+    n.breaks = 12,
+    guide = guide_legend(reverse = TRUE)
+  ) +
+  theme_bw()
+```
+
 
 ### Zonal Operations
 Here we demonstrate using the zonal function in `terra` to summarize a value raster of elevation, using an srtm.tif from `spDataLarge`, by the zones of NLCD classes using nlcd.tif raster also in the `spDataLarge` package.  We'll expand more on zonal statistics including for categorical data in the final section of the workshop.
